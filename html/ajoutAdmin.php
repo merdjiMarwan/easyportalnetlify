@@ -1,0 +1,141 @@
+<?php
+// Inclure le fichier d'authentification pour vérifier si l'admin est connecté
+include('php/auth.php');
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Easy Portal - Ajouter un Admin</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            zoom: 0.99;
+            overflow: hidden;
+        }
+        body {
+            background: linear-gradient(to bottom, #ffffff, #e0ffe0);
+        }
+        .wrapper {
+            width: 600px;
+            margin: 0 auto;
+        }
+        .message {
+            margin-top: 20px;
+        }
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .eye-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">✦Easy Portal</div>
+    <div class="wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="mt-5">Ajouter un nouvel Admin</h2>
+                    
+                    <form id="adminForm">
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" name="prenom" id="prenom" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" name="nom" id="nom" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mot de passe</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text eye-icon" id="togglePassword">👁️</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Le mot de passe doit comporter au moins 8 caractères, une majuscule, une minuscule et un caractère spécial.</small>
+                        </div>
+                        <input type="submit" class="btn btn-success" value="Ajouter">
+                        <a href="admin" class="btn btn-secondary ml-2">Annuler</a>
+                    </form>
+                    <div id="message" class="message"></div>
+                </div>
+            </div>        
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("adminForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const prenom = document.getElementById("prenom").value;
+            const nom = document.getElementById("nom").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Validation du mot de passe
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+            if (!passwordPattern.test(password)) {
+                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Le mot de passe doit comporter au moins 8 caractères, une majuscule, une minuscule et un caractère spécial.</div>";
+                return;
+            }
+
+            const adminData = {
+                prenom: prenom,
+                nom: nom,
+                email: email,
+                password: password
+            };
+
+            try {
+                const response = await fetch("php/add_admin.php", { // Envoi vers add_admin.php
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                const messageDiv = document.getElementById("message");
+                if (response.ok) {
+                    messageDiv.innerHTML = "<div class='alert alert-success'>Admin ajouté avec succès !</div>";
+                    document.getElementById("adminForm").reset();
+                } else {
+                    messageDiv.innerHTML = "<div class='alert alert-danger'>Erreur lors de l'ajout de l'admin.</div>";
+                }
+            } catch (error) {
+                console.error("Erreur :", error);
+                const messageDiv = document.getElementById("message");
+                messageDiv.innerHTML = "<div class='alert alert-danger'>Une erreur est survenue. Veuillez réessayer.</div>";
+            }
+        });
+
+        // Fonction pour afficher/masquer le mot de passe
+        document.getElementById("togglePassword").addEventListener("click", function() {
+            const passwordField = document.getElementById("password");
+            const passwordFieldType = passwordField.getAttribute("type");
+
+            // Basculer entre 'password' et 'text'
+            if (passwordFieldType === "password") {
+                passwordField.setAttribute("type", "text");
+            } else {
+                passwordField.setAttribute("type", "password");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<?php
+// Inclure le fichier d'authentification pour vérifier la session
+include('php/auth.php'); 
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Easy Portal - Ajouter un utilisateur</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            zoom: 0.93;
+        }
+        body {
+            background: linear-gradient(to bottom, #ffffff, #e0ffe0);
+            overflow: hidden;
+        }
+        .wrapper {
+            width: 600px;
+            margin: 0 auto;
+        }
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .eye-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.0009rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">✦Easy Portal</div>
+    <div class="wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="mt-5">Ajouter un nouvel utilisateur</h2>
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" name="nom" id="nom" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" name="prenom" id="prenom" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mot de passe</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text eye-icon" id="togglePassword">👁️</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Le mot de passe doit comporter au moins 8 caractères, une majuscule, une minuscule et un caractère spécial.</small>
+                        </div>
+                        <button type="submit" class="btn btn-success">Ajouter</button>
+                        <a href="user" class="btn btn-secondary ml-2">Annuler</a>
+                    </form>
+                    <div id="message" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("userForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let nom = document.getElementById("nom").value;
+            let prenom = document.getElementById("prenom").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            // Validation du mot de passe
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+            if (!passwordPattern.test(password)) {
+                document.getElementById("message").innerHTML = `<div class="alert alert-danger">Le mot de passe doit comporter au moins 8 caractères, une majuscule, une minuscule et un caractère spécial.</div>`;
+                return;
+            }
+
+            // Ajout de la requête POST pour ajouter l'utilisateur
+            fetch("php/add_user.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nom, prenom, email, password, role: 'utilisateur' }) // Inclure le rôle ici
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("message").innerHTML = `<div class="alert alert-success">Utilisateur ajouté avec succès !</div>`;
+                    document.getElementById("userForm").reset();
+                } else {
+                    document.getElementById("message").innerHTML = `<div class="alert alert-danger">Erreur lors de l'ajout de l'utilisateur : ${data.error || 'Erreur inconnue.'}</div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById("message").innerHTML = `<div class="alert alert-danger">Erreur lors de l'ajout de l'utilisateur.</div>`;
+                console.error("Erreur :", error);
+            });
+        });
+
+        // Fonction pour afficher/masquer le mot de passe
+        document.getElementById("togglePassword").addEventListener("click", function() {
+            const passwordField = document.getElementById("password");
+            const passwordFieldType = passwordField.getAttribute("type");
+
+            // Basculer entre 'password' et 'text'
+            if (passwordFieldType === "password") {
+                passwordField.setAttribute("type", "text");
+            } else {
+                passwordField.setAttribute("type", "password");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<?php
+// Inclure le fichier d'authentification pour vérifier si l'admin est connecté
+include('php/auth.php');
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user-admin.css">
+    <title>Easy Portal - Admin</title>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">✦Easy Portal</div>
+        <div class="user-name" id="userName">Chargement...</div>
+    </div>
+
+    <div class="sidebar">
+        <a>Dashboard</a>
+        <a href="user">Utilisateurs</a>
+        <a href="admin" class="active">Admin</a>
+        <a href="plaques">Plaques</a>
+        <a href="portail">Portail</a>
+        <a href="log">Logs</a>
+    </div>
+
+    <div class="main">
+        <div class="title">Admin</div>
+        <div id="alert-container"></div>
+
+        <div class="search-container">
+            <a href="ajoutAdmin" class="btn-add">Ajouter</a>
+            <div class="search-bar">
+                <span>🔎</span>
+                <input type="text" id="searchInput" placeholder="Rechercher un administrateur..." oninput="filterAdmin()">
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+        </table>
+    </div>
+
+    <script src="js/dejaconnecter.js"></script>
+    <script>
+        let adminsData = [];
+
+        async function fetchAdmins() {
+            try {
+                const response = await fetch('php/get_admins.php'); // Utiliser get_admins.php
+                if (!response.ok) throw new Error(`Erreur HTTP : ${response.status}`);
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error || "Erreur inconnue");
+
+                adminsData = data.data || [];
+                displayAdmins(adminsData);
+            } catch (error) {
+                console.error("Erreur :", error);
+            }
+        }
+
+        function displayAdmins(admins) {
+            const tbody = document.getElementById("adminTableBody");
+            tbody.innerHTML = "";
+
+            admins.forEach(admin => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${admin.prenom} ${admin.nom}</td>
+                    <td>${admin.email}</td>
+                    <td><span class="badge">${admin.role}</span></td>
+                    <td>
+                        ${admin.role !== "super_admin" 
+                            ? `<button class="delete-button" onclick="deleteAdmin('${admin.id}', '${admin.prenom}', '${admin.nom}')">Supprimer</button>` 
+                            : `<span style="color:gray;">Non supprimable</span>`}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterAdmin() {
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const filteredAdmins = adminsData.filter(admin => {
+                const fullName = `${admin.prenom} ${admin.nom}`.toLowerCase();
+                return fullName.includes(searchInput) || 
+                       admin.email.toLowerCase().includes(searchInput) || 
+                       admin.role.toLowerCase().includes(searchInput);
+            });
+            displayAdmins(filteredAdmins);
+        }
+
+        async function deleteAdmin(id, prenom, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer l'administrateur ${prenom} ${nom} ?`)) {
+                try {
+                    const response = await fetch('php/delete_admin.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById("alert-container").innerHTML = `<div class="alert">Administrateur ${prenom} ${nom} supprimé !</div>`;
+                        setTimeout(() => document.getElementById("alert-container").innerHTML = "", 3000);
+                        fetchAdmins(); // Récupérer à nouveau la liste des admins
+                    } else {
+                        alert(data.message || "Erreur lors de la suppression");
+                    }
+                } catch (error) {
+                    console.error("Erreur :", error);
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchAdmins);
+    </script>
+</body>
+</html>

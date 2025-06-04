@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #EDF4EC;
+}
+
+.header {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.container {
+    text-align: center;
+    margin-top: 8%;
+    display: none;
+    /* Cacher le contenu par défaut */
+    width: 100%;
+    max-width: 400px;
+    padding: 0 20px;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dcdcdc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.input-group.password {
+    position: relative;
+}
+
+.input-group.password input {
+    padding-right: 2.5rem;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.btn {
+    background-color: #6AE38C;
+    width: 100%;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+}
+
+.btn:hover {
+    background-color: #5AD17D;
+}
+
+.message {
+    color: red;
+    margin-top: 1rem;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    /* Assurez-vous que le chargement est au-dessus du contenu */
+}
+
+#loading-screen img {
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    transform: scale(2.0); /* Augmentez la valeur pour zoomer davantage */
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+    }
+
+    #loading-screen img {
+        max-width: 95vw;
+        max-height: 95vh;
+        transform: scale(2.5); /* Ajustez la valeur pour les petits écrans */
+    }
+}

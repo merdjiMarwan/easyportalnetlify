@@ -1,0 +1,99 @@
+<?php
+// Inclure le fichier d'authentification
+include('php/auth.php');
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/log.css">
+    <title>Easy Portal - Logs</title>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">✦Easy Portal</div>
+        <div class="user-name" id="userName">Chargement...</div>
+    </div>
+
+    <div class="sidebar">
+        <a >Dashboard</a>
+        <a href="user">Utilisateurs</a>
+        <a href="admin">Admin</a>
+        <a href="plaques">Plaques</a>
+        <a href="portail">Portail</a>
+        <a href="log" class="active">Logs</a>
+    </div>
+
+    <div class="main">
+        <h2>Logs</h2>
+        <div class="logs-container">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Rechercher par email ou plaque" />
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Date</th>
+                        <th>Plaque</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/dejaconnecter.js"></script>
+    <script>
+        // Fonction pour récupérer les logs depuis l'API PHP
+        async function fetchLogs() {
+            try {
+                const response = await fetch('php/get_logs.php');
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
+
+                const logs = await response.json();
+                console.log(logs); // Affiche les logs dans la console
+                displayLogs(logs);
+
+                // Ajouter l'événement de recherche
+                document.getElementById('searchInput').addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const filteredLogs = logs.filter(log => 
+                        log.email.toLowerCase().includes(searchTerm) || 
+                        log.plaque.toLowerCase().includes(searchTerm)
+                    );
+                    displayLogs(filteredLogs);
+                });
+
+            } catch (error) {
+                console.error("Erreur :", error);
+            }
+        }
+
+        // Fonction pour afficher les logs dans le tableau
+        function displayLogs(logs) {
+            const tbody = document.getElementById("logsTableBody");
+            tbody.innerHTML = ""; // Vider le tableau avant de le remplir
+
+            logs.forEach(log => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${log.email}</td>
+                    <td>${log.date_entree}</td>
+                    <td>${log.plaque}</td>
+                    <td>${log.action}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Charger les logs dès que la page est prête
+        document.addEventListener("DOMContentLoaded", fetchLogs);
+    </script>
+</body>
+</html>
