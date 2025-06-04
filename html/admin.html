@@ -18,19 +18,20 @@ include('php/auth.php');
 
     <div class="sidebar">
         <a>Dashboard</a>
-        <a href="user">Utilisateurs</a>
-        <a href="admin" class="active">Admin</a>
-        <a href="plaques">Plaques</a>
-        <a href="portail">Portail</a>
-        <a href="log">Logs</a>
+        <a href="user.html" class="active">Utilisateurs</a>
+        <a href="admin.html">Admin</a>
+        <a href="plaques.html">Plaques</a>
+        <a href="portail.html">Portail</a>
+        <a href="log.html">Logs</a>
     </div>
+
 
     <div class="main">
         <div class="title">Admin</div>
         <div id="alert-container"></div>
 
         <div class="search-container">
-            <a href="ajoutAdmin" class="btn-add">Ajouter</a>
+            <a href="ajoutAdmin.html" class="btn-add">Ajouter</a>
             <div class="search-bar">
                 <span>🔎</span>
                 <input type="text" id="searchInput" placeholder="Rechercher un administrateur..." oninput="filterAdmin()">
